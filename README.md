@@ -29,6 +29,9 @@ installed via the `requirements.txt` file using the following command:
 python -m pip install -r  requirements.txt
 ```
 
+If you are using VsCode (encouraged) you also need to install the `OCP CAD Viewer`
+extension. (https://marketplace.visualstudio.com/items?itemName=bernhard-42.ocp-cad-viewer)
+
 Every thing should now be setup. You should also see somewhere in your
 console that you are using a virtual environment (look for `.venv`).
 If you start developing in this project after some time again it could

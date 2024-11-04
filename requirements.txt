@@ -1,0 +1,5 @@
+build123d == 0.7.0
+ocp_vscode == 2.6.1
+ipykernel
+jupyter-console
+segno == 1.6.1
