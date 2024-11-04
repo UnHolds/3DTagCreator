@@ -37,11 +37,29 @@ def braile_text_obj(text: str, diameter: int, additional_thickness: int, fillet_
                 add(single_braille_obj(c, diameter, additional_thickness, fillet_percent).part)
         return braille_part
 
+def text_obj(text: str, font_size: int, thickness: float, font="Overpass", fillet_radius=0.2) -> BuildPart:
+    with BuildPart() as text_part:
+        with BuildSketch() as _:
+            Text(text, font_size=font_size, align=(Align.MIN, Align.MIN), font=font)
+        extrude(amount=thickness)
+        if fillet_radius > 0:
+            edges = text_part.edges().sort_by(Axis.Z)
+            top_edge = edges[-1]
+            top_edges = ShapeList(filter(lambda e: abs(top_edge.position.Z - e.position.Z) < 0.001, edges))
+            fillet(top_edges, radius=fillet_radius)
+        return text_part
+
+def plate_obj(width: float, length: float, thickness: float, fillet_radius: float) -> BuildPart:
+    with BuildPart() as plate:
+        Box(length, width, thickness)
+        fillet(plate.edges().filter_by(Axis.Z), radius=fillet_radius)
+        return plate
 
 matrix = get_qr_code_matrix('https://gebaerden-archiv.at/sign/30718')
 #get_qr_code_obj(matrix, 2, 7)
-show(braile_text_obj('abcdefghijklmnopqrstuvwxyz1234567890', 1.5, 0, 0))
-
+#show(braile_text_obj('abcdefghijklmnopqrstuvwxyz1234567890', 1.5, 0, 0))
+#show(text_obj("hello", 10, 2))
+show(plate_obj(5,6,1,1))
 #4,125
 # 4,26
 #4,42
