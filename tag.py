@@ -50,7 +50,7 @@ def get_text_obj(text: str, font_size: int, thickness: float, font="Overpass", f
             fillet(top_edges, radius=fillet_radius)
         return text_part
 
-def get_plate_obj(width: float, length: float, thickness: float, fillet_radius: float) -> BuildPart:
+def get_plate_obj(length: float, width: float, thickness: float, fillet_radius: float) -> BuildPart:
     with BuildPart() as plate:
         Box(length, width, thickness, align=Align.MIN)
         fillet(plate.edges().filter_by(Axis.Z), radius=fillet_radius)
@@ -62,12 +62,17 @@ def assemble_plate():
     qr_code_length = bounding_box(qr_code_obj.part).edges().sort_by(Axis.Z)[0].length
 
     # the following length calculation assume that the length in the x-axis is always bigger than in the y-axis
+    # sorted by: [y (smaller), x (bigger)]
     braille_obj = braile_text_obj(text='Kaffee', dot_diameter=4, additional_thickness=0, fillet_percent=0)
     braille_length = sorted(map(lambda e: e.length, bounding_box(braille_obj.part).edges().sort_by(Axis.Z)[:4]))[1:3]
 
     text_obj = get_text_obj(text="hello", font_size=10, thickness=2)
     text_length = sorted(map(lambda e: e.length, bounding_box(text_obj.part).edges().sort_by(Axis.Z)[:4]))[1:3]
 
-    plate_obj = get_plate_obj(width=5, length=6, thickness=1, fillet_radius=1)
+    x_length = qr_code_length + max(braille_length[1], text_length[1])
+    y_length = max(qr_code_length, braille_length[0], text_length[0])
+
+    plate_obj = get_plate_obj(length=x_length, width=y_length, thickness=1, fillet_radius=1)
+
     show_all()
 assemble_plate()
