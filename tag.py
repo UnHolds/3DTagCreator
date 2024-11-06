@@ -67,7 +67,7 @@ def get_plate_obj(length: float, width: float, thickness: float, fillet_radius: 
         return plate
 
 
-def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1.5, qr_code_pixel_size = 1, braile_dot_diameter = 1.5, font_size = 15, font="Arial", font_style=FontStyle.BOLD, braile_fillet_percent = 1, text_fillet_mm = 0, plate_fillet_mm = 5):
+def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1.5, qr_code_pixel_size = 1, braile_dot_diameter = 1.6, font_size = 15, font="Arial", font_style=FontStyle.BOLD, braile_fillet_percent = 1, text_fillet_mm = 0, plate_fillet_mm = 5):
     qr_code_obj = get_qr_code_obj(url=url, pixel_size=qr_code_pixel_size, thickness=thickness)
     qr_code_length = bounding_box(qr_code_obj.part).edges().sort_by(Axis.Z)[0].length
 
@@ -92,11 +92,14 @@ def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1
     print(text_length)
     # move text
     text_obj.part.color = Color("green")
-    text_obj.part.move(Location((5, (y_length - 5 - braille_length[0]) / 2 - text_length[0]/2 + braille_length[0] + 5, plate_tickness)))
+    text_y_pos = (y_length - 5 - braille_length[0]) / 2 - text_length[0]/2 + braille_length[0] + 5
+    text_x_pos = (max(braille_length[0], text_length[0]) - text_length[0]) / 2 + 5
+    text_obj.part.move(Location((text_x_pos, text_y_pos, plate_tickness)))
 
     #move braille
     braille_obj.part.color = Color("red")
-    braille_obj.part.move(Location((5, 5, plate_tickness)))
+    braille_x_pos = (max(braille_length[0], text_length[0]) - braille_length[0]) / 2 + 5
+    braille_obj.part.move(Location((braille_x_pos, 5, plate_tickness)))
 
     assembly = Compound(children=[plate_obj.part, qr_code_obj.part, text_obj.part, braille_obj.part])
     assembly.label = 'Tag'
