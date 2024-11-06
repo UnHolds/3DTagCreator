@@ -2,6 +2,7 @@ from build123d import *
 from ocp_vscode import *
 import segno
 import braille
+import argparse
 
 def get_qr_code_matrix(url: str) -> list:
     video_qr = segno.make(url)
@@ -89,7 +90,6 @@ def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1
     qr_code_obj.part.move(Location((x_length - qr_code_length - 5, (y_length - qr_code_length) / 2, plate_tickness)))
 
 
-    print(text_length)
     # move text
     text_obj.part.color = Color("green")
     text_y_pos = (y_length - 5 - braille_length[0]) / 2 - text_length[0]/2 + braille_length[0] + 5
@@ -104,5 +104,27 @@ def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1
     assembly = Compound(children=[plate_obj.part, qr_code_obj.part, text_obj.part, braille_obj.part])
     assembly.label = 'Tag'
 
-    show(assembly)
-get_assembled_plate('Kaffee', 'https://gebaerden-archiv.at/sign/30913')
+    return assembly
+
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+                    prog='3D Tag Creator',
+                    description='A tool to create STL that include the text in ascii and in braille. The tag also contains a QR-Code that points to a custom domain (For example a sign language example of the word)',
+                    epilog='The program was developed with ❤️ by UnHold')
+    parser.add_argument('-u', '--url', type=str, help='QR-Code URL', required=True)
+    parser.add_argument('-t', '--text', type=str, help='Text to be printed', required=True)
+    parser.add_argument('-n', '--no-output', action='store_true', help="If set no output (stl) will be created, even if -o is set")
+    parser.add_argument('-o', '--output', type=str, help='Output file name', default='./tag.stl', required=False)
+    parser.add_argument('-s', '--show', action='store_true', help='if set the part will the shown in the OCP CAD viewer')
+
+    #TODO add missing arguments
+
+    args = parser.parse_args()
+    assembly = get_assembled_plate(args.text, args.url)
+    if args.show:
+        show(assembly)
+    if not args.no_output:
+        export_stl(to_export=assembly, file_path=args.output)
