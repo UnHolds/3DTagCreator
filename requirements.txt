@@ -3,3 +3,4 @@ ocp_vscode == 2.6.1
 ipykernel
 jupyter-console
 segno == 1.6.1
+flask == 3.0.3

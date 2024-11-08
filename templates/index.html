@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <script type="module">
+            import * as THREE from "https://cdn.skypack.dev/three@0.132.2";
+            import { STLLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/STLLoader'
+            const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            const light = new THREE.DirectionalLight(0xffffff, 0.5);
+            scene.add( new THREE.AmbientLight( 0xffffff, 0.1 ) );
+            camera.add( light )
+
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			camera.position.z = 5;
+            scene.add(camera)
+
+            let group;
+			function loadObject(url) {
+                const loader = new STLLoader()
+                loader.load(url, function (geometry) {
+                    group = new THREE.Group()
+                    scene.add(group)
+
+                    const material = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, specular: 0x111111, shininess: 200 })
+
+                    let mesh = new THREE.Mesh(geometry, material)
+
+                    mesh.position.set(0, 0, 0)
+                    mesh.scale.set(0.1, 0.1, 0.1)
+                    mesh.castShadow = true
+                    mesh.receiveShadow = true
+
+                    geometry.center()
+                    group.add(mesh)
+                })
+                return group;
+            }
+            const stl = loadObject("./static/tag.stl")
+
+            function animate() {
+				requestAnimationFrame( animate );
+                if (group != undefined){
+                    group.rotation.y += 0.01;
+                }
+
+				renderer.render( scene, camera );
+			};
+            animate();
+		</script>
+        <script>
+            async function generate_tag(e){
+                e.preventDefault();
+                let text = e.srcElement[0].value;
+                let url = e.srcElement[1].value;
+                let res = await fetch("/generate", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        text: text,
+                        url: url
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                })
+
+                let json = await res.json()
+                console.log(json)
+            }
+        </script>
+
+
+    </head>
+    <body>
+        <h1>3D-Tag-Creator</h1>
+
+        <form onsubmit="return generate_tag(event)" method="post">
+            <label for="ftext">Text:</label><br>
+            <input type="text" id="ftext" name="ftext" required><br>
+            <label for="furl">URL:</label><br>
+            <input type="url" id="furl" name="furl" required>
+            <button>Generate</button>
+        </form>
+
+    </body>
+
+</html>

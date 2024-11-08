@@ -107,6 +107,8 @@ def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1
     return assembly
 
 
+def get_stl(obj, path):
+    export_stl(to_export=obj, file_path=path)
 
 
 if __name__ == "__main__":
