@@ -2,55 +2,66 @@
     <head>
         <script type="module">
             import * as THREE from "https://cdn.skypack.dev/three@0.132.2";
-            import { STLLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/STLLoader'
+            import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js'
+            import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js'
             const scene = new THREE.Scene();
-			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            const light = new THREE.DirectionalLight(0xffffff, 0.5);
+            var container = document.getElementById( 'canvas' );
+			const camera = new THREE.PerspectiveCamera( 75, container.clientWidth / container.clientHeight, 0.1, 1000 );
+            const light = new THREE.DirectionalLight(0xffffff, 2);
             scene.add( new THREE.AmbientLight( 0xffffff, 0.1 ) );
             camera.add( light )
 
 			const renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
+			renderer.setSize( container.clientWidth-16, container.clientHeight-16 );
+			container.appendChild( renderer.domElement );
+
+            var controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
 
 			camera.position.z = 5;
             scene.add(camera)
 
-            let group;
-			function loadObject(url) {
-                const loader = new STLLoader()
-                loader.load(url, function (geometry) {
-                    group = new THREE.Group()
-                    scene.add(group)
+            let tag_obj;
+			export function loadObject(url) {
+                if (tag_obj){
+                    scene.remove(tag_obj);
+                }
 
-                    const material = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, specular: 0x111111, shininess: 200 })
 
-                    let mesh = new THREE.Mesh(geometry, material)
+                const loader = new GLTFLoader();
+                loader.load(url, function ( gltf) {
+                    tag_obj = new THREE.Group()
+                    gltf.scene.scale.set(50, 50, 50);
 
-                    mesh.position.set(0, 0, 0)
-                    mesh.scale.set(0.1, 0.1, 0.1)
-                    mesh.castShadow = true
-                    mesh.receiveShadow = true
+                    gltf.scene.rotation.x += Math.PI/2;
 
-                    geometry.center()
-                    group.add(mesh)
+                    const box = new THREE.Box3().setFromObject( gltf.scene );
+                    const size = box.getSize(new THREE.Vector3());
+                    gltf.scene.position.set(-size.x/2, -size.y/2, -size.z/2)
+
+                    tag_obj.add(gltf.scene)
+                    scene.add(tag_obj)
+                    camera.lookAt(tag_obj);
+
                 })
-                return group;
+                return tag_obj;
             }
-            const stl = loadObject("./static/tag.stl")
+            loadObject("./static/tag.gltf")
 
             function animate() {
 				requestAnimationFrame( animate );
-                if (group != undefined){
-                    group.rotation.y += 0.01;
-                }
-
+                controls.update( );
+		        light.position.copy( camera.position );
 				renderer.render( scene, camera );
 			};
             animate();
+
+            window.loadObject = loadObject;
 		</script>
         <script>
+            let stl_addr;
             async function generate_tag(e){
+                document.getElementById("download_stl_btn").disabled = true;
                 e.preventDefault();
                 let text = e.srcElement[0].value;
                 let url = e.srcElement[1].value;
@@ -66,7 +77,14 @@
                 })
 
                 let json = await res.json()
-                console.log(json)
+
+                loadObject(json['gltf'])
+                stl_addr = json['stl']
+                document.getElementById("download_stl_btn").disabled = false;
+            }
+
+            function download_stl() {
+                window.open(stl_addr, '_blank').focus();
             }
         </script>
 
@@ -82,6 +100,10 @@
             <input type="url" id="furl" name="furl" required>
             <button>Generate</button>
         </form>
+
+        <button type="button" id="download_stl_btn" onclick="download_stl()" disabled>Download STL</button>
+
+        <div id="canvas" style="width: 50vh; height: 50vh;"></div>
 
     </body>
 
