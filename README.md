@@ -13,7 +13,7 @@ braille & qr-code)
 ## Usage
 
 You can use the program in 2 ways. First as a standalone application and
-second as a Website (under development).
+second as a Website.
 
 ### Use as an application
 
@@ -32,7 +32,28 @@ python tag.py --help
 
 ### Use as website
 
-This is still work in progress! (Sry)
+You can use it either by executing the python directly or via a docker
+container (recommended if you have docker installed).
+
+To use it with plain python just execute the `server.py` file with:
+```bash
+python server.py
+```
+(make sure the dependencies of the `requirements.txt` are installed)
+
+This should enable you to open the url (http://127.0.0.1:5000/) and see the website.
+
+<br>
+
+THE DOCKER SETUP DOES CURRENTLY NOT WORK
+
+If you want to use docker just execute the following command inside the folder.
+```
+docker compose up
+```
+
+The website should now also be reachable at http://127.0.0.1:5000/
+(Beware the startup may take a while)
 
 ## Example Tag
 
