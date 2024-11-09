@@ -110,6 +110,9 @@ def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1
 def get_stl(obj, path):
     export_stl(to_export=obj, file_path=path)
 
+def get_gltf(obj, path):
+        export_gltf(to_export=obj, file_path=path)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

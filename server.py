@@ -1,9 +1,13 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 import tag
 import uuid
 import base64
 
 app = Flask(__name__)
+
+@app.route('/tmp/<path:req>', methods = ['GET'])
+def tmp_ressource(req):
+    return send_from_directory('tmp', req)
 
 @app.route('/generate', methods=['POST'])
 def generate():
@@ -13,18 +17,18 @@ def generate():
     url = req['url']
 
     assembly = tag.get_assembled_plate(text=text, url=url)
-    path = f'./tmp/{uuid.uuid4()}.stl'
-    tag.get_stl(assembly, path)
+    stl_path = f'./tmp/{uuid.uuid4()}.stl'
+    tag.get_stl(assembly, stl_path)
 
-    result = {}
-    with open(path, 'rb') as f:
-        b64data = base64.b64encode(f.read()).decode('ascii')
+    gltf_path = f'./tmp/{uuid.uuid4()}.gltf'
+    tag.get_gltf(assembly, gltf_path)
 
-        result = {
-            'text': text,
-            'url': url,
-            'data': b64data
-        }
+    result = {
+        'text': text,
+        'url': url,
+        'stl': stl_path,
+        'gltf': gltf_path
+    }
     return result
 
 @app.route('/')
