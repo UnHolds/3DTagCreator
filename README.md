@@ -35,6 +35,17 @@ python tag.py --help
 You can use it either by executing the python directly or via a docker
 container (recommended if you have docker installed).
 
+If you want to use docker just execute the following command inside the folder.
+```bash
+docker compose up
+```
+
+The website should now also be reachable at http://127.0.0.1:8000/ or
+http://localhost:8000/ (Beware the startup may take a while)
+
+
+<br>
+
 To use it with plain python just execute the `server.py` file with:
 ```bash
 python server.py
@@ -43,17 +54,6 @@ python server.py
 
 This should enable you to open the url (http://127.0.0.1:5000/) and see the website.
 
-<br>
-
-THE DOCKER SETUP DOES CURRENTLY NOT WORK
-
-If you want to use docker just execute the following command inside the folder.
-```
-docker compose up
-```
-
-The website should now also be reachable at http://127.0.0.1:5000/
-(Beware the startup may take a while)
 
 ## Example Tag
 
