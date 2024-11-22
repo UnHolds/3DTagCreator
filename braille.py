@@ -43,6 +43,7 @@ lookup_table = {
     '9': '011000',
     '0': '011100',
     ' ': '000000',
+    '?': '001011'
     }
 
 def mk_braille_rdy(text: str) -> str:

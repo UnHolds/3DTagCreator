@@ -22,6 +22,9 @@ def get_qr_code_obj(url: str, pixel_size: float, thickness: float) -> BuildPart:
 
 def single_braille_obj(char: str, dot_diameter: int, additional_thickness: int, fillet_percent: float) -> BuildPart:
     #small value hack
+
+    if char == ' ':
+        return None
     fillet_percent = 0.9999 if fillet_percent == 1 and additional_thickness == 0 else fillet_percent
 
     with BuildPart() as braille_part:
@@ -39,7 +42,9 @@ def braille_text_obj(text: str, dot_diameter: int, additional_thickness: int, fi
     with BuildPart() as braille_part:
         for (i, c) in enumerate(text):
             with Locations((i * dot_diameter * 4.267, 0)):
-                add(single_braille_obj(c, dot_diameter, additional_thickness, fillet_percent).part)
+                buildpart = single_braille_obj(c, dot_diameter, additional_thickness, fillet_percent)
+                if buildpart is not None:
+                    add(buildpart.part)
         braille_part.part.label = 'Braille-Text'
         return braille_part
 
@@ -68,7 +73,7 @@ def get_plate_obj(length: float, width: float, thickness: float, fillet_radius: 
         return plate
 
 
-def get_assembled_plate(text: str, url: str, plate_tickness = 1.5, thickness = 1.5, qr_code_pixel_size = 1, braile_dot_diameter = 1.6, font_size = 15, font="Arial", font_style=FontStyle.BOLD, braile_fillet_percent = 1, text_fillet_mm = 0, plate_fillet_mm = 5):
+def get_assembled_plate(text: str, url: str, plate_tickness = 0.8, thickness = 1, qr_code_pixel_size = 1, braile_dot_diameter = 1.6, font_size = 15, font="Arial", font_style=FontStyle.BOLD, braile_fillet_percent = 1, text_fillet_mm = 0, plate_fillet_mm = 5):
     qr_code_obj = get_qr_code_obj(url=url, pixel_size=qr_code_pixel_size, thickness=thickness)
     qr_code_length = bounding_box(qr_code_obj.part).edges().sort_by(Axis.Z)[0].length
 
